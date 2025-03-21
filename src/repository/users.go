@@ -143,3 +143,18 @@ func (u users) GetUserByEmail(email string) (models.User, error) {
 
 	return user, nil
 }
+
+func (u users) FollowUser(followerID, userID uint64) error {
+	statement, err := u.db.Prepare("insert ignore into followers (user_id, follower_id) values (?, ?)")
+
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(userID, followerID); err != nil {
+		return err
+	}
+
+	return nil
+}

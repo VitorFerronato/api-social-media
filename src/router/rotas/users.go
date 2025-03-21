@@ -9,7 +9,7 @@ var userRoutes = []Route{
 		URI:         "/users",
 		Method:      "POST",
 		Function:    controllers.CreateUser,
-		RequireAuth: true,
+		RequireAuth: false,
 	},
 	{
 		URI:         "/users",
@@ -33,6 +33,12 @@ var userRoutes = []Route{
 		URI:         "/users/{userId}",
 		Method:      "DELETE",
 		Function:    controllers.DeleteUser,
+		RequireAuth: true,
+	},
+	{
+		URI:         "/users/{userId}/follow",
+		Method:      "POST",
+		Function:    controllers.FollowUser,
 		RequireAuth: true,
 	},
 }
