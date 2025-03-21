@@ -231,3 +231,35 @@ func (u users) GetFollowing(userID uint64) ([]models.User, error) {
 
 	return followers, nil
 }
+
+func (u users) GetPassword(userID uint64) (string, error) {
+	row, err := u.db.Query("select password from users where id = ?", userID)
+	if err != nil {
+		return "", err
+	}
+	defer row.Close()
+
+	var user models.User
+
+	if row.Next() {
+		if err = row.Scan(&user.Password); err != nil {
+			return "", err
+		}
+	}
+
+	return user.Password, nil
+}
+
+func (u users) UpdatePassword(userID uint64, password string) error {
+	statement, err := u.db.Prepare("UPDATE users SET password = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(password, userID); err != nil {
+		return err
+	}
+
+	return nil
+}
