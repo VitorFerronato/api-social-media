@@ -14,7 +14,7 @@ func NewUserRepository(db *sql.DB) *users {
 	return &users{db}
 }
 
-func (u users) Create(user models.User) (uint64, error) {
+func (u users) CreateUser(user models.User) (uint64, error) {
 	statement, err := u.db.Prepare("insert into users (name ,nick ,email,password) values(?,?,?,?)")
 	if err != nil {
 		return 0, nil
@@ -34,7 +34,7 @@ func (u users) Create(user models.User) (uint64, error) {
 	return uint64(userID), nil
 }
 
-func (u users) Get(searchTerm string) ([]models.User, error) {
+func (u users) GetUser(searchTerm string) ([]models.User, error) {
 	searchTerm = fmt.Sprintf("%%%s%%", searchTerm)
 
 	rows, err := u.db.Query(
@@ -63,4 +63,31 @@ func (u users) Get(searchTerm string) ([]models.User, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func (u users) GetUserByID(ID uint64) (models.User, error) {
+	rows, err := u.db.Query(
+		"SELECT id, name, nick, email, createDate FROM users WHERE id = ?",
+		ID,
+	)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer rows.Close()
+
+	var user models.User
+
+	if rows.Next() {
+		if err = rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreateDate,
+		); err != nil {
+			return models.User{}, err
+		}
+	}
+
+	return user, nil
 }
