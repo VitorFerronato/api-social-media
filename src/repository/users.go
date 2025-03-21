@@ -3,6 +3,7 @@ package repository
 import (
 	"api/src/models"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -126,4 +127,19 @@ func (u users) DeleteUser(ID uint64) error {
 	}
 
 	return nil
+}
+
+func (u users) GetUserByEmail(email string) (models.User, error) {
+	row := u.db.QueryRow("SELECT id, password FROM users WHERE email = ?", email)
+
+	var user models.User
+	err := row.Scan(&user.ID, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.User{}, errors.New("user not found")
+		}
+		return models.User{}, err
+	}
+
+	return user, nil
 }
