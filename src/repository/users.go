@@ -144,7 +144,7 @@ func (u users) GetUserByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
-func (u users) FollowUser(followerID, userID uint64) error {
+func (u users) FollowUser(userID, followerID uint64) error {
 	statement, err := u.db.Prepare("insert ignore into followers (user_id, follower_id) values (?, ?)")
 
 	if err != nil {
@@ -159,7 +159,7 @@ func (u users) FollowUser(followerID, userID uint64) error {
 	return nil
 }
 
-func (u users) UnfollowUser(followerID, userID uint64) error {
+func (u users) UnfollowUser(userID, followerID uint64) error {
 	statement, err := u.db.Prepare("delete from followers where user_id = ? and follower_id = ?")
 	if err != nil {
 		return err
@@ -171,4 +171,33 @@ func (u users) UnfollowUser(followerID, userID uint64) error {
 	}
 
 	return nil
+}
+
+func (u users) GetFollowers(userID uint64) ([]models.User, error) {
+	rows, err := u.db.Query(`
+	select u.id, u.name, u.nick, u.email, u.createDate
+	from users u inner join followers s on u.id = s.follower_id where s.user_id = ?
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var followers []models.User
+	for rows.Next() {
+		var follower models.User
+
+		if err = rows.Scan(
+			&follower.ID,
+			&follower.Name,
+			&follower.Nick,
+			&follower.Email,
+			&follower.CreateDate,
+		); err != nil {
+			return nil, err
+		}
+
+		followers = append(followers, follower)
+	}
+
+	return followers, nil
 }
