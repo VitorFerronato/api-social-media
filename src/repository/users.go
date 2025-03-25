@@ -23,6 +23,7 @@ func (u users) CreateUser(user models.User) (uint64, error) {
 	defer statement.Close()
 
 	result, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password)
+	fmt.Println("erro", err)
 	if err != nil {
 		return 0, err
 	}
