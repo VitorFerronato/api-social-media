@@ -98,6 +98,8 @@ API_HOST=
 SECRET_KEY=
 ```
 
+New features soon!
+
 
 
 
